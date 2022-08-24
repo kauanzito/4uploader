@@ -7,7 +7,7 @@ import path from "path";
 import fs from "fs";
 
 const app = express();
-const port = process.env.PORT || 8080;
+const port = process.env.PORT || 80;
 
 // Cretae folder
 if (!fs.existsSync("./public/file")) fs.mkdirSync("./public/file");
