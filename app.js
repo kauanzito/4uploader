@@ -13,14 +13,14 @@ const port = process.env.PORT || 80;
 if (!fs.existsSync("./public/file")) fs.mkdirSync("./public/file");
 
 function makeid(length) {
-    let result = "";
-    const characters =
-        "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-    const charactersLength = characters.length;
-    for (let i = 0; i < length; i++) {
-        result += characters.charAt(Math.floor(Math.random() * charactersLength));
-    }
-    return result;
+  let result = "";
+  const characters =
+    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+  const charactersLength = characters.length;
+  for (let i = 0; i < length; i++) {
+    result += characters.charAt(Math.floor(Math.random() * charactersLength));
+  }
+  return result;
 }
 
 app.set("json spaces", 2);
@@ -29,93 +29,91 @@ app.use(logger("dev"));
 app.use(express.json());
 app.use(express.static("public"));
 app.use(
-express.urlencoded({
+  express.urlencoded({
     extended: false,
-}));
+  })
+);
 app.use(cookieParser());
-app.use(function(err, req, res, next) {
-    console.error(err.stack);
-    res.status(500)
-        .send("Algo quebrou!");
+app.use(function (err, req, res, next) {
+  console.error(err.stack);
+  res.status(500).send("Algo quebrou!");
 });
 
 const storage = multer.diskStorage({
-    destination: "public/file",
-    filename: (req, file, cb) => {
-        cb(null, makeid(12) + path.extname(file.originalname));
-    },
+  destination: "public/file",
+  filename: (req, file, cb) => {
+    cb(null, makeid(12) + path.extname(file.originalname));
+  },
 });
 
 const upload = multer({
-    storage,
-    limits: {
-        fileSize: 10000000, // 10 MB
-    },
+  storage,
+  limits: {
+    fileSize: 20000000, // 20 MB
+  },
 });
 
 app.get("/", (req, res) => {
-    res.status(200)
-        .sendFile("./public/index.html");
+  res.status(200).sendFile("./public/index.html");
 });
 
 app.post(
-    "/upload",
-upload.single("file"), (req, res) => {
-    if (!req.file.path) return res.status(400)
-        .json({
+  "/upload",
+  upload.single("file"),
+  (req, res) => {
+    if (!req.file.path)
+      return res.status(400).json({
         status: false,
         message: "Sem arquivos selecionados",
+      });
+    res.status(200).json({
+      status: true,
+      result: {
+        originalname: req.file.originalname,
+        encoding: req.file.encoding,
+        mimetype: req.file.mimetype,
+        size: req.file.size,
+        url: "https://" + req.hostname + "/file/" + req.file.filename,
+      },
     });
-    res.status(200)
-        .json({
-        status: true,
-        result: {
-            originalname: req.file.originalname,
-            encoding: req.file.encoding,
-            mimetype: req.file.mimetype,
-            size: req.file.size,
-            url: "https://" + req.hostname + "/file/" + req.file.filename,
-        },
+  },
+  (error, req, res, next) => {
+    res.status(400).json({
+      error: error.message,
     });
-}, (error, req, res, next) => {
-    res.status(400)
-        .json({
-        error: error.message,
-    });
-});
+  }
+);
 
 app.post("/multi-upload", upload.array("files", 10), (req, res) => {
-    if (!req.files) return res.status(400)
-        .json({
-        status: false,
-        message: "Sem arquivos selecionados",
+  if (!req.files)
+    return res.status(400).json({
+      status: false,
+      message: "Sem arquivos selecionados",
     });
-    const result = [];
-    req.files.forEach((v) => {
-        result.push({
-            originalname: v.originalname,
-            encoding: v.encoding,
-            mimetype: v.mimetype,
-            size: v.size,
-            url: "https://" + req.hostname + "/file/" + v.filename,
-        });
+  const result = [];
+  req.files.forEach((v) => {
+    result.push({
+      originalname: v.originalname,
+      encoding: v.encoding,
+      mimetype: v.mimetype,
+      size: v.size,
+      url: "https://" + req.hostname + "/file/" + v.filename,
     });
-    res.status(200)
-        .json({
-        status: true,
-        result: result,
-    });
+  });
+  res.status(200).json({
+    status: true,
+    result: result,
+  });
 });
 
 // Handling 404
-app.use(function(res) {
-    res.status(404)
-        .json({
-        status: false,
-        message: "página não encontrada",
-    });
+app.use(function (req, res, next) {
+  res.status(404).json({
+    status: false,
+    message: "página não encontrada",
+  });
 });
 
 app.listen(port, () => {
-    console.warn(`Site rodando em http: //localhost:${port}`);
-    });
+  console.warn(`Site rodando em http: //localhost:${port}`);
+});
