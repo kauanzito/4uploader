@@ -115,5 +115,5 @@ app.use(function (req, res, next) {
 });
 
 app.listen(port, () => {
-  console.warn(`Site rodando em http: //localhost:${port}`);
+  console.warn(`Site rodando em http://localhost:${port}`);
 });
