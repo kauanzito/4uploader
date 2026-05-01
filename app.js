@@ -73,7 +73,7 @@ app.post(
         encoding: req.file.encoding,
         mimetype: req.file.mimetype,
         size: req.file.size,
-        url: "https://" + req.hostname + "/file/" + req.file.filename,
+        url: "http://" + req.hostname + "/file/" + req.file.filename,
       },
     });
   },
@@ -97,7 +97,7 @@ app.post("/multi-upload", upload.array("files", 10), (req, res) => {
       encoding: v.encoding,
       mimetype: v.mimetype,
       size: v.size,
-      url: "https://" + req.hostname + "/file/" + v.filename,
+      url: "http://" + req.hostname + "/file/" + v.filename,
     });
   });
   res.status(200).json({
